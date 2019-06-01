@@ -16,7 +16,10 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
+import java.util.TimeZone;
 
 public class GWMainActivity extends AppCompatActivity {
 
@@ -51,10 +54,25 @@ public class GWMainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
-   public void setAlarm() {
+    private String formatdt(String txtLastAlarm)
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        long currentTimeStamp = Long.parseLong(txtLastAlarm);
+        Date dateTime = new Date(currentTimeStamp);
+        return dateFormat.format(dateTime);
+    }
+    public void setAlarm() {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-       if (!prefs.getBoolean("alarmSet", false)) {
+        long epoch=328738233;
+        String LastAlarm = prefs.getString("gwLastAlarm",Long.toString(epoch));
+        long currentTimeStamp = Long.parseLong(LastAlarm);
+        long nextAlarmSet = currentTimeStamp + (60 * 60 * 1000 * 24 * 6 );
+        Log.d(MAIN_ACTIVITY_LOGGER,"Last Alarms were set " + formatdt(LastAlarm));
+        Log.d(MAIN_ACTIVITY_LOGGER,"Next Alarms will be set after  " + formatdt(Long.toString(nextAlarmSet)));
+        if ( System.currentTimeMillis()> nextAlarmSet) {
+        //if more then 6 days have elapsed since lst setting alarms. Set some new ones
            Log.d(MAIN_ACTIVITY_LOGGER,"Setting Random Alarm");
            Random r=new Random();
            int randomNumber=r.nextInt(22) + 1;
@@ -62,21 +80,33 @@ public class GWMainActivity extends AppCompatActivity {
            alarmMgr = (AlarmManager) myContext.getSystemService(myContext.ALARM_SERVICE);
            Intent intent = new Intent(myContext, gwAlarmReciever.class);
            alarmIntent = PendingIntent.getBroadcast(myContext, 0, intent, 0);
+        //set 7 random alarms
+            for (int i=0;i<7;i++)
+            {
+                randomNumber=r.nextInt(22) + 1;
+                Log.d(MAIN_ACTIVITY_LOGGER,"Alarm Random  " + i + " is " + randomNumber);
+                //int alarmhours = ((i+1) * 24) * randomNumber * 60 * 60 * 1000;
+                int alarmhours = ((i+1) * 24) * (60+randomNumber) * 60 * 1000;
+                alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+                        SystemClock.elapsedRealtime() + alarmhours  , alarmIntent);
+                //randomNumber * 60 * 1000, alarmIntent);
+                String nextAlarm = Long.toString(System.currentTimeMillis() + alarmhours);
 
-           alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                   SystemClock.elapsedRealtime() +
-                           randomNumber * 60 * 1000, alarmIntent);
+                Log.d(MAIN_ACTIVITY_LOGGER,"Alarm " + i + " will fire at " + formatdt(nextAlarm));
+            }
+           /* alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+                   SystemClock.elapsedRealtime() + randomNumber * 60 * 1000,
+                   randomNumber * 60 * 1000, alarmIntent);
+                           //randomNumber * 60 * 1000, alarmIntent);
+           */
 
-        //anoying 5 minute alarm test only !
-        /*
-           alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                   SystemClock.elapsedRealtime() +
-                           5 * 1000, alarmIntent);
+
 
            SharedPreferences.Editor editor = prefs.edit();
-           editor.putBoolean("alarmSet", true);
+           editor.putString("gwLastAlarm",Long.toString(System.currentTimeMillis()));
+
            editor.apply();
-           */
+
        }
 
    }
