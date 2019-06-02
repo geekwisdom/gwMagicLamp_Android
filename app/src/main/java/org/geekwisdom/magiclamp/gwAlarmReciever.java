@@ -21,7 +21,7 @@ public class gwAlarmReciever extends BroadcastReceiver {
         Log.d(GW_ALARM_LOGGER,"Alarm Fired");
         GWQuotes newQuote = new GWQuotes(context);
         //Toast.makeText(context, newQuote.getQuote(), Toast.LENGTH_LONG).show();
-        sendNotification(newQuote.getQuote(),context);
+        sendNotification(newQuote.getRndQuote(),context);
     }
 
     private void sendNotification(String the_message,Context mContext)

@@ -8,11 +8,12 @@
 
     <TextView
         android:id="@+id/quoteView"
-        android:layout_width="250dp"
-        android:layout_height="162dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
         android:text="@string/the_quote"
         android:textSize="20dp"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -25,12 +26,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:onClick="changeQuote"
         android:text="More Quotes..."
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quoteView"
-        android:onClick="changeQuote" />
+        app:layout_constraintTop_toBottomOf="@+id/quoteView" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -40,12 +41,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
         android:src="@mipmap/magic_lamp_img"
         app:layout_constraintBottom_toTopOf="@+id/quoteView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@android:color/transparent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/shareButton"
@@ -54,10 +55,20 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:onClick="shareQuote"
         android:text="Share..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quoteView"
-        android:onClick="shareQuote"/>
+        app:layout_constraintTop_toBottomOf="@+id/quoteView" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/gw_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        style="@style/HeaderBar"
+        app:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
+        android:elevation="4dp"
+        />
 
 </android.support.constraint.ConstraintLayout>
