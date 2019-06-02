@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MotionEventCompat;
@@ -241,8 +242,22 @@ public class GWMainActivity extends AppCompatActivity {
     }
 private void doRub()
 {
-    Log.d(MAIN_ACTIVITY_LOGGER,"A RUB WAS DETECTED !!");
-    Toast.makeText(getApplicationContext(), "Geek Wisdom Code is: ABCD", Toast.LENGTH_LONG).show();
+        Log.d(MAIN_ACTIVITY_LOGGER,"A RUB WAS DETECTED !!");
+       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+       boolean showedcode = prefs.getBoolean("gwCodeGiven",false);
+       if (!showedcode) {
+           Toast.makeText(getApplicationContext(), "Geek Wisdom Code is: bPSO", Toast.LENGTH_LONG).show();
+           SharedPreferences.Editor editor = prefs.edit();
+           editor.putBoolean("gwCodeGiven",true);
+
+           editor.apply();
+       }
+    else
+       {
+           startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=MeabQjpkMFY&list=PLhxFBfGQPGOcEB60nUvcd3csMfIJItlDo")));
+//           Log.i("Video", "Video Playing....");
+
+       }
 }
 
 private void doShake()

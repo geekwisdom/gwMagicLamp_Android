@@ -8,12 +8,12 @@
 
     <TextView
         android:id="@+id/quoteView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="328dp"
+        android:layout_height="53dp"
         android:fontFamily="sans-serif-medium"
+        android:gravity="center"
         android:text="@string/the_quote"
         android:textSize="20dp"
-        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
