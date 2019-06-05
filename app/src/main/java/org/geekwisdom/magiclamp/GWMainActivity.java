@@ -1,3 +1,39 @@
+/******************************************************************************
+ File Name: gwMainActivity.java
+ @(#) This is the MAIN activity, it displays rotating quotes, handles
+ @(#) "rubbing" the lamp, and "shaking" the phone
+  **********************************************************************************
+ Written By: Brad Detchevery
+ Created: June 1, 2019
+  ********************************************************************************
+ MIT License [MODIFIED COPYRIGHT NOTICE]
+
+ -- BEGIN COPYRIGHT NOTICE --
+ Copyright (c) 2019 Brad Detchevery
+ This product uses GeekWisdom.org Software, and has been provided FREE OF CHARGE.
+ If you like it please consider becoming a Patron at https://patreon.com/GeekWisdom
+ -- END COPYRIGHT NOTICE --
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice (text between the -- BEGIN COPYRIGHT NOTICE -- and -- END COPYRIGHT NOTICE --)
+ and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ ********************************************************************************/
+
 package org.geekwisdom.magiclamp;
 
 import android.app.AlarmManager;
@@ -5,6 +41,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.net.Uri;
@@ -16,6 +53,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +76,7 @@ public class GWMainActivity extends AppCompatActivity {
     private int MIN_DISTANCE = 35;
     private int totalswipes=0;
     private ShakeDetector mShakeDetector;
+    private String quoteURL = "http://geekwisdom.org/quotes";
 
     private static final String MAIN_ACTIVITY_LOGGER = GWMainActivity.class.getSimpleName();
     @Override
@@ -51,8 +90,8 @@ public class GWMainActivity extends AppCompatActivity {
         setAlarm();
         Log.d(MAIN_ACTIVITY_LOGGER,"Inside On Create Function of Magic Lamp");
         the_quote = new GWQuotes(getApplicationContext());
-        quoteView =  findViewById(R.id.quoteView);
-        quoteView.setText(the_quote.lastQuote());
+        setQuote((the_quote.lastQuote()));
+
         setShaker();
 
         View myView = findViewById(R.id.imageView);
@@ -63,8 +102,42 @@ public class GWMainActivity extends AppCompatActivity {
             }
         });
     }
+    private void setQuote(String quoteInfo)
+    {
+        //Log.d(MAIN_ACTIVITY_LOGGER,"TEST1: " + getApplicationContext().getResources().getResourceName(R.drawable.billgatesgeeks));
+        quoteView =  findViewById(R.id.quoteView);
+        if (quoteInfo.contains("::"))
+        {
+            Log.d(MAIN_ACTIVITY_LOGGER,"TEST1: 2 ");
+            String[] output = quoteInfo.split("::");
+            quoteView.setText(output[0]);
+            quoteView.setVisibility(View.INVISIBLE);
+            Log.d(MAIN_ACTIVITY_LOGGER,"TEST1: " + output[0]);
+            Log.d(MAIN_ACTIVITY_LOGGER,"TEST1: " + output[1]);
+            Context mycontext = getApplicationContext();
+            Resources resources = mycontext.getResources();
+            int resourceId = resources.getIdentifier(output[1], "drawable",
+                    mycontext.getPackageName());
+            Log.d(MAIN_ACTIVITY_LOGGER,"TEST1: " + resourceId);
+
+            ImageView image = (ImageView) findViewById(R.id.quoteImage);
+            image.setImageResource(resourceId);
+            image.setVisibility(View.VISIBLE);
+    if (output.length > 2) quoteURL=output[2];
+
+        }
+        else {
+            quoteView.setVisibility(View.VISIBLE);
+            quoteView.setText(quoteInfo);
+            ImageView image = (ImageView) findViewById(R.id.quoteImage);
+            image.setVisibility(View.INVISIBLE);
+        }
+
+    }
     public void changeQuote(View v) {
-        quoteView.setText(the_quote.getRndQuote());
+
+        String quoteInfo=the_quote.getRndQuote();
+        setQuote(quoteInfo);
     }
     public void shareQuote(View v) {
         String quoteText = quoteView.getText().toString();
@@ -72,7 +145,7 @@ public class GWMainActivity extends AppCompatActivity {
         sharingIntent.setType("text/plain");
         String shareBody = quoteText;
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "GWQOTD");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody + " " + "http://geekwisdom.org/quotes");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody + " " + quoteURL);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
@@ -106,6 +179,7 @@ public class GWMainActivity extends AppCompatActivity {
     }
     public void setAlarm() {
 
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         long epoch=328738233;
         String LastAlarm = prefs.getString("gwLastAlarm",Long.toString(epoch));
@@ -113,14 +187,19 @@ public class GWMainActivity extends AppCompatActivity {
         long nextAlarmSet = currentTimeStamp + (60 * 60 * 1000 * 24 * 6 );
         Log.d(MAIN_ACTIVITY_LOGGER,"Last Alarms were set " + formatdt(LastAlarm));
         Log.d(MAIN_ACTIVITY_LOGGER,"Next Alarms will be set after  " + formatdt(Long.toString(nextAlarmSet)));
-        if ( System.currentTimeMillis()> nextAlarmSet) {
+        //See if alarm already set
+        Context myContext = getApplicationContext();
+        Intent intent = new Intent(myContext, gwAlarmReciever.class);
+        boolean alarmUp = PendingIntent.getBroadcast(myContext, 0, intent, PendingIntent.FLAG_NO_CREATE) != null;
+        if (!alarmUp) { Log.d(MAIN_ACTIVITY_LOGGER,"No Alarms found, re-setting!"); }
+        if ( System.currentTimeMillis()> nextAlarmSet || !alarmUp) {
         //if more then 6 days have elapsed since lst setting alarms. Set some new ones
            Log.d(MAIN_ACTIVITY_LOGGER,"Setting Random Alarm");
            Random r=new Random();
            int randomNumber=r.nextInt(22) + 1;
-           Context myContext = getApplicationContext();
+           //Context myContext = getApplicationContext();
            alarmMgr = (AlarmManager) myContext.getSystemService(myContext.ALARM_SERVICE);
-           Intent intent = new Intent(myContext, gwAlarmReciever.class);
+           //Intent intent = new Intent(myContext, gwAlarmReciever.class);
            alarmIntent = PendingIntent.getBroadcast(myContext, 0, intent, 0);
         //set 7 random alarms
             for (int i=0;i<7;i++)
@@ -240,10 +319,24 @@ public class GWMainActivity extends AppCompatActivity {
                 return super.onTouchEvent(event);
         }
     }
-private void doRub()
+
+
+    public void genieImage()
+{
+    ImageView image = (ImageView) findViewById(R.id.quoteImage);
+    image.setImageResource(R.drawable.genie);
+
+
+}
+    private void doRub()
 {
         Log.d(MAIN_ACTIVITY_LOGGER,"A RUB WAS DETECTED !!");
-       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    ImageView image = (ImageView) findViewById(R.id.quoteImage);
+    image.setImageResource(R.drawable.genie);
+    image.setVisibility(quoteView.VISIBLE);
+    quoteView =  findViewById(R.id.quoteView);
+    quoteView.setVisibility(View.INVISIBLE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
        boolean showedcode = prefs.getBoolean("gwCodeGiven",false);
        if (!showedcode) {
            Toast.makeText(getApplicationContext(), "Geek Wisdom Code is: bPSO", Toast.LENGTH_LONG).show();
@@ -254,6 +347,7 @@ private void doRub()
        }
     else
        {
+        //reminder: ONLY IF ON WIFI Connected!
            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=MeabQjpkMFY&list=PLhxFBfGQPGOcEB60nUvcd3csMfIJItlDo")));
 //           Log.i("Video", "Video Playing....");
 
@@ -262,7 +356,9 @@ private void doRub()
 
 private void doShake()
 {
-    //Toast.makeText(this, "Shaked !!!", Toast.LENGTH_SHORT).show();
-    quoteView.setText(the_quote.getRndQuote());
+    GWShake shakemessage = new GWShake(getApplicationContext());
+
+    Toast.makeText(this, shakemessage.getRndMsg(), Toast.LENGTH_SHORT).show();
+
 }
 }

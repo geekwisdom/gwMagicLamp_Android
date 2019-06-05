@@ -1,3 +1,39 @@
+/******************************************************************************
+ File Name: gwAlarmReciever.java
+ @(#) The alarm reciever is called by the AlarmManager to show a new notification
+ @(#) message.
+  **********************************************************************************
+ Written By: Brad Detchevery
+ Created: June 1, 2019
+  ********************************************************************************
+ MIT License [MODIFIED COPYRIGHT NOTICE]
+
+ -- BEGIN COPYRIGHT NOTICE --
+ Copyright (c) 2019 Brad Detchevery
+ This product uses GeekWisdom.org Software, and has been provided FREE OF CHARGE.
+ If you like it please consider becoming a Patron at https://patreon.com/GeekWisdom
+ -- END COPYRIGHT NOTICE --
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice (text between the -- BEGIN COPYRIGHT NOTICE -- and -- END COPYRIGHT NOTICE --)
+ and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ ********************************************************************************/
+
 package org.geekwisdom.magiclamp;
 
 import android.app.Notification;
@@ -6,6 +42,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+
 import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
@@ -18,10 +55,16 @@ public class gwAlarmReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // show toast
-        Log.d(GW_ALARM_LOGGER,"Alarm Fired");
+        Log.d(GW_ALARM_LOGGER, "Alarm Fired");
         GWQuotes newQuote = new GWQuotes(context);
         //Toast.makeText(context, newQuote.getQuote(), Toast.LENGTH_LONG).show();
-        sendNotification(newQuote.getRndQuote(),context);
+        String quoteData = newQuote.getRndQuote();
+        if (quoteData.contains("::")) {
+            String[] output = quoteData.split("::");
+            quoteData = output[0];
+        }
+        sendNotification(quoteData,context);
+
     }
 
     private void sendNotification(String the_message,Context mContext)

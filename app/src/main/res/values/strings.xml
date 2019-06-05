@@ -4,5 +4,5 @@
     <string name="action_about">About...</string>
     <string name="action_quit">Exit</string>
     <string name="about_text">If you like this app and would like to see more features/developments please consider becoming a patron at http://patreon.com/GeekWisdom. Please also consider rating this app on the play store!</string>
-    <string name="version">1.00001 (c) 2019 - Brad Detchevery</string>
+    <string name="version">0.5 (c) 2019 - Brad Detchevery</string>
 </resources>

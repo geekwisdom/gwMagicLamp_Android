@@ -1,7 +1,6 @@
-/******************************************************************************
- File Name: gwQuotes
- @(#) The class reads the 'inspiration.txt' flie and selects a random
- @(#) quote message and image (if applicable)
+/********************************************************************************
+ File Name: GWShake.java
+ @(#) Purpose: Get a random 'funny' message when user Shakes the phone
   **********************************************************************************
  Written By: Brad Detchevery
  Created: June 1, 2019
@@ -33,6 +32,7 @@
  SOFTWARE.
 
  ********************************************************************************/
+
 package org.geekwisdom.magiclamp;
 
 import android.content.Context;
@@ -48,82 +48,52 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GWQuotes {
+public class GWShake {
     private android.content.res.AssetManager AssetManager;
     private Context Appcontext;
     ArrayList<String> lines = new ArrayList<String>();
     private static final String GW_QUOTES_ACTIVITY_LOGGER = GWMainActivity.class.getSimpleName();
-    public GWQuotes(Context myContext)
+    public GWShake(Context myContext)
     {
         Appcontext = myContext;
         AssetManager = myContext.getAssets();
     }
 
-    public String lastQuote()
+
+
+    public String getRndMsg()
     {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Appcontext);
-        String LastQuote = prefs.getString("gwLastQuote","");
-        if (LastQuote == "") LastQuote="Welcome to Magic Lamp!";
-        return LastQuote;
+        return getRndQuote(0);
     }
 
-    public String getRndQuote()
+        private boolean buildMsgs()
     {
-    return getRndQuote(0);
-    }
-
-    public void AddQuote(String quote)
-    {
-        lines.add(quote);
-    }
-    private boolean buildQuotes()
-    {
-        BufferedReader reader;
-        if (lines.size() <= 0)
-        {
-            try {
-
-
-                final InputStream file = AssetManager.open("inspiration.txt");
-                reader = new BufferedReader(new InputStreamReader(file));
-                String line = reader.readLine();
-                while (line != null) {
-                    Log.d(GW_QUOTES_ACTIVITY_LOGGER, "Loaded Line" + line);
-                    lines.add(line);
-                    line = reader.readLine();
-                }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-                lines.add("Don’t panic!");
-                return false;
-            }
-        }
-return true;
+    lines.add("EARTHQUAKE!!");
+    lines.add("Hey I'm sleeping here");
+    lines.add("OUCH - That hurt!");
+    lines.add("Hey - I'm in here you know");
+    lines.add("Please stop shaking my home around");
+    return true;
     }
     public String getRndQuote(int seed) {
 
-        buildQuotes();
+        buildMsgs();
         if (seed == 0) {
             Random r = new Random();
             int randomNumber = r.nextInt(lines.size());
-            return getQuote(randomNumber);
+            return getMessage(randomNumber);
         }
         return "Don’t Let Yesterday Take Up Too Much Of Today";
     }
 
-    public String getQuote(int i) {
+    public String getMessage(int i) {
 
 
         String retval = "";
         //June 2, 2019 BDY - just read the file once per app startup
-        buildQuotes();
-
+        buildMsgs();
         retval=lines.get(i);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Appcontext);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("gwLastQuote",retval);
 
-        editor.apply();
         return retval;
     }
 
