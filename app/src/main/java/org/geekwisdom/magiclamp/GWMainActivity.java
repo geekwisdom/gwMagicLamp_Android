@@ -64,6 +64,7 @@ import java.util.TimeZone;
 
 public class GWMainActivity extends AppCompatActivity {
 
+    static public boolean isInForeground = false;
     private TextView quoteView;
     private GWQuotes the_quote;
     private AlarmManager alarmMgr;
@@ -75,10 +76,24 @@ public class GWMainActivity extends AppCompatActivity {
     private int MAX_DISTANCE = 90;
     private int MIN_DISTANCE = 35;
     private int totalswipes=0;
+    private long lastMS=0;
     private ShakeDetector mShakeDetector;
     private String quoteURL = "http://geekwisdom.org/quotes";
 
     private static final String MAIN_ACTIVITY_LOGGER = GWMainActivity.class.getSimpleName();
+
+    @Override
+    protected void onResume() {
+        isInForeground = true;
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        isInForeground = false;
+        super.onPause();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -160,6 +175,7 @@ public class GWMainActivity extends AppCompatActivity {
 
     public void setShaker()
     {
+        lastMS = SystemClock.elapsedRealtime();
         Context myContext = getApplicationContext();
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -209,11 +225,11 @@ public class GWMainActivity extends AppCompatActivity {
                 randomNumber=r.nextInt(22) + 1;
                 Log.d(MAIN_ACTIVITY_LOGGER,"Alarm Random  " + i + " is " + randomNumber);
                 //int alarmhours = ((i+1) * 24) * randomNumber * 60 * 60 * 1000;
-                int alarmhours = ((i+1) * 24) * (60+randomNumber) * 60 * 1000;
+                int alarmhours = (i * 24) * (60+randomNumber) * 60 * 1000;
 
                 if (i == 0 ) {
                     //intent = new Intent(myContext, gwAlarmReciever.class);
-                    alarmhours = 1000 * 60 * 15; //10 minute test
+                    alarmhours = 1000 * 60 * 5;
                     alarmIntent = PendingIntent.getBroadcast(myContext, 0, intent, 0);
                     alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
                             SystemClock.elapsedRealtime() + alarmhours  , alarmIntent);
@@ -221,7 +237,8 @@ public class GWMainActivity extends AppCompatActivity {
                 }
                 else {
                     Intent newIntent = new Intent(myContext, gwAlarmReciever.class);
-                    PendingIntent nextAlarm = PendingIntent.getBroadcast(myContext, 0, newIntent, 0);
+                    final int _id = i * alarmhours;
+                    PendingIntent nextAlarm = PendingIntent.getBroadcast(myContext, _id, newIntent, 0);
                     alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
                             SystemClock.elapsedRealtime() + alarmhours  , nextAlarm);
                     //randomNumber * 60 * 1000, alarmIntent);
@@ -373,9 +390,15 @@ public class GWMainActivity extends AppCompatActivity {
 
 private void doShake()
 {
-    GWShake shakemessage = new GWShake(getApplicationContext());
-
-    Toast.makeText(this, shakemessage.getRndMsg(), Toast.LENGTH_SHORT).show();
-
+    if (isInForeground) {
+        long currentMS = SystemClock.elapsedRealtime();
+        long elapsedTime = currentMS - lastMS;
+        double elapsedSeconds = elapsedTime / 1000.0;
+        //Only show message IF at least "x" seconds have elapsed
+        if (elapsedSeconds > 15) {
+            GWShake shakemessage = new GWShake(getApplicationContext());
+            Toast.makeText(this, shakemessage.getRndMsg(), Toast.LENGTH_SHORT).show();
+        }
+    }
 }
 }

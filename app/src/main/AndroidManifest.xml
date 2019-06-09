@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".gwAlarmReciever"></receiver>
+        <receiver android:name=".gwAlarmReciever" android:enabled="true"></receiver>
     </application>
 
 </manifest>
