@@ -190,6 +190,7 @@ public class GWMainActivity extends AppCompatActivity {
         //See if alarm already set
         Context myContext = getApplicationContext();
         Intent intent = new Intent(myContext, gwAlarmReciever.class);
+        alarmIntent = PendingIntent.getBroadcast(myContext, 0, intent, 0);
         boolean alarmUp = PendingIntent.getBroadcast(myContext, 0, intent, PendingIntent.FLAG_NO_CREATE) != null;
         if (!alarmUp) { Log.d(MAIN_ACTIVITY_LOGGER,"No Alarms found, re-setting!"); }
         if ( System.currentTimeMillis()> nextAlarmSet || !alarmUp) {
@@ -200,17 +201,33 @@ public class GWMainActivity extends AppCompatActivity {
            //Context myContext = getApplicationContext();
            alarmMgr = (AlarmManager) myContext.getSystemService(myContext.ALARM_SERVICE);
            //Intent intent = new Intent(myContext, gwAlarmReciever.class);
-           alarmIntent = PendingIntent.getBroadcast(myContext, 0, intent, 0);
-        //set 7 random alarms
+
+        //set 7 random alarms one-time alarms
             for (int i=0;i<7;i++)
             {
+
                 randomNumber=r.nextInt(22) + 1;
                 Log.d(MAIN_ACTIVITY_LOGGER,"Alarm Random  " + i + " is " + randomNumber);
                 //int alarmhours = ((i+1) * 24) * randomNumber * 60 * 60 * 1000;
                 int alarmhours = ((i+1) * 24) * (60+randomNumber) * 60 * 1000;
-                alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
-                        SystemClock.elapsedRealtime() + alarmhours  , alarmIntent);
-                //randomNumber * 60 * 1000, alarmIntent);
+
+                if (i == 0 ) {
+                    //intent = new Intent(myContext, gwAlarmReciever.class);
+                    alarmhours = 1000 * 60 * 15; //10 minute test
+                    alarmIntent = PendingIntent.getBroadcast(myContext, 0, intent, 0);
+                    alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+                            SystemClock.elapsedRealtime() + alarmhours  , alarmIntent);
+                    //randomNumber * 60 * 1000, alarmIntent);
+                }
+                else {
+                    Intent newIntent = new Intent(myContext, gwAlarmReciever.class);
+                    PendingIntent nextAlarm = PendingIntent.getBroadcast(myContext, 0, newIntent, 0);
+                    alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+                            SystemClock.elapsedRealtime() + alarmhours  , nextAlarm);
+                    //randomNumber * 60 * 1000, alarmIntent);
+                }
+
+
                 String nextAlarm = Long.toString(System.currentTimeMillis() + alarmhours);
 
                 Log.d(MAIN_ACTIVITY_LOGGER,"Alarm " + i + " will fire at " + formatdt(nextAlarm));

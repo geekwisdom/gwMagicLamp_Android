@@ -1,13 +1,22 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Robyn\\keys\\androidstore2.jks')
+            storePassword 'tyx.2@V3'
+            keyAlias = 'large_expiry'
+keyPassword 'blc4fr'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "org.geekwisdom.magiclamp"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.5"
+        setProperty("archivesBaseName", "gwMagicLamp")
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
