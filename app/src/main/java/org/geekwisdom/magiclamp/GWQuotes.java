@@ -63,7 +63,7 @@ public class GWQuotes {
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Appcontext);
         String LastQuote = prefs.getString("gwLastQuote","");
-        if (LastQuote == "") LastQuote="Welcome to Magic Lamp!\n\nClick here to begin...";
+        if (LastQuote == "") LastQuote="Welcome to Magic Lamp!\n\nClick here to begin.\n Swipe left to change quote, \nclick a quote image to maximize/restore...";
         return LastQuote;
     }
 
